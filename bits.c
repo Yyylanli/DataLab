@@ -260,17 +260,15 @@ int rotateRightBits(int x, int n) {
 // P10
 int roundEvenPow2(int x, int n) {
     int mask = (1 << n) + ~0;
-    int half = 1 << (n + ~1 + 1);
+    int half = (1 << n) >> 1;
     int frac = x & mask;
     int base = x & ~mask;
-    int cmp = frac + ~half + 1;
-    int geHalf = (cmp >> 31) ^ 1;
+    int geHalf = !((frac + ~half + 1) >> 31);
     int isHalf = !(frac ^ half);
     int baseEven = !((base >> n) & 1);
-    int add = geHalf & ( !isHalf | !baseEven );
+    int add = geHalf & (!isHalf | !baseEven);
     return base + (add << n);
 }
-
 
 // P11
 /* 
@@ -495,21 +493,18 @@ int bitCount(int x) {
 }
 
 // P19
-int bitReverse(int x) {
-    int m1 = 0x55;
-    m1 = m1 | (m1 << 8) | (m1 << 16);
-    int m2 = 0x33;
-    m2 = m2 | (m2 << 8) | (m2 << 16);
-    int m4 = 0x0F;
-    m4 = m4 | (m4 << 8) | (m4 << 16);
-    int m8 = 0xFF;
-    m8 = m8 | (m8 << 16);
-    int m16 = 0xFF;
-    m16 = m16 | (m16 << 8);
-    x = ((x >> 1) & m1) | ((x & m1) << 1);
-    x = ((x >> 2) & m2) | ((x & m2) << 2);
-    x = ((x >> 4) & m4) | ((x & m4) << 4);
-    x = ((x >> 8) & m8) | ((x & m8) << 8);
-    x = ((x >> 16) & m16) | ((x & m16) << 16);
+int bitReverse(int x)
+{
+    int m1 = 0x55 | (0x55 << 8); m1 = m1 | (m1 << 16);
+    int m2 = 0x33 | (0x33 << 8); m2 = m2 | (m2 << 16);
+    int m4 = 0x0F | (0x0F << 8); m4 = m4 | (m4 << 16);
+    int m8 = 0xFF | (0xFF << 16);
+    int m16 = 0xFF | (0xFF << 8);
+
+    x = ((x & m1) << 1) | ((x >> 1) & m1);
+    x = ((x & m2) << 2) | ((x >> 2) & m2);
+    x = ((x & m4) << 4) | ((x >> 4) & m4);
+    x = ((x & m8) << 8) | ((x >> 8) & m8);
+    x = (x << 16) | ((x >> 16) & m16);
     return x;
 }
